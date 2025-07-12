@@ -34,9 +34,8 @@ const RootLayout = () => {
           },
           gestureEnabled: true,
           gestureDirection: "horizontal",
-          presentation: "modal",
         }}
-      />
+      ></Stack>
     </>
   );
 };

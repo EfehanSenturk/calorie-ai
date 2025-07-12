@@ -42,7 +42,7 @@ async function signIn(params: SignInParams) {
 }
 
 const SignIn = () => {
-  const { setIsLoggedIn } = useAuthContext();
+  const { setIsLoggedIn, setUser } = useAuthContext();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -63,7 +63,21 @@ const SignIn = () => {
       const result = await signIn(loginParams);
 
       if (result?.response.accessToken) {
-        await SecureStore.setItemAsync("token", result.response.accessToken);
+        const token = result.response.accessToken;
+        await SecureStore.setItemAsync("token", token);
+
+        const userData = await fetch("http://localhost:3000/user/profile", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (userData.ok) {
+          const user = await userData.json();
+          setUser(user);
+        }
+
         setIsLoggedIn(true);
         router.push("/");
       } else {

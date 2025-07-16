@@ -287,6 +287,11 @@ export default function Index() {
           {/* Yüklemede değilse ve analiz sonucu yoksa görsel yükleme bölümünü göster */}
           {!loading && !analysisResult ? (
             <>
+              {!selectedImage && (
+                <Text style={styles.instructionText}>
+                  Upload a food image to analyze its calories and nutrients.
+                </Text>
+              )}
               <TouchableOpacity
                 style={styles.imageContainer}
                 onPress={pickImage}
@@ -295,6 +300,7 @@ export default function Index() {
                   <Image
                     source={{ uri: selectedImage }}
                     style={styles.selectedImage}
+                    resizeMode="contain"
                   />
                 ) : (
                   <View style={styles.imagePlaceholder}>
@@ -308,12 +314,25 @@ export default function Index() {
 
               {/* Görsel seçildiyse Analyze butonu göster */}
               {selectedImage && (
-                <TouchableOpacity
-                  onPress={analyzeImage}
-                  style={styles.analyzeButton}
-                >
-                  <Text style={styles.analyzeButtonText}>Analyze Image</Text>
-                </TouchableOpacity>
+                <>
+                  <TouchableOpacity
+                    onPress={analyzeImage}
+                    style={styles.analyzeButton}
+                  >
+                    <Text style={styles.analyzeButtonText}>Analyze Image</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedImage(null);
+                    }}
+                    style={styles.removeImageButton}
+                  >
+                    <Text style={styles.removeImageButtonText}>
+                      Remove Image
+                    </Text>
+                  </TouchableOpacity>
+                </>
               )}
             </>
           ) : (
@@ -326,6 +345,7 @@ export default function Index() {
                 <Image
                   source={{ uri: selectedImage || "" }}
                   style={styles.selectedImage}
+                  resizeMode="contain"
                 />
                 {loading && (
                   <View style={styles.loadingOverlay}>
@@ -435,22 +455,27 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#f4f6fc",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e1e4e8",
-    backgroundColor: "#fff",
+    borderBottomColor: "#d1d5db",
+    backgroundColor: "#ffffff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1f2937",
   },
   hamburgerButton: {
     padding: 8,
@@ -459,34 +484,32 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   scrollViewContent: {
-    flexGrow: 1, // Büyüyebilmesi için
-    paddingBottom: 20, // Alt tarafta ekstra padding
+    flexGrow: 1,
+    paddingBottom: 24,
   },
   content: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: 20, // Üstte biraz boşluk ekleyin
-    paddingBottom: 20, // Altta biraz boşluk ekleyin
+    paddingTop: 24,
+    paddingHorizontal: 16,
   },
   imageContainer: {
-    width: "80%", // Yüzde olarak ayarlayın
-    height: 300, // Sabit yükseklik yerine daha esnek bir çözüm
-    maxWidth: 300, // Maksimum genişlik
-    aspectRatio: 1, // Kare olması için
+    width: "90%",
+    height: 320,
     borderRadius: 20,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 5,
+    elevation: 6,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#e1e4e8",
-    position: "relative", // loading overlay için
+    borderColor: "#e5e7eb",
+    position: "relative",
   },
   selectedImage: {
     width: "100%",
@@ -497,18 +520,154 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
     height: "100%",
+    backgroundColor: "#f9fafb",
+  },
+  removeImageButton: {
+    backgroundColor: "#ef4444",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginTop: 16,
+    shadowColor: "#ef4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  removeImageButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
   },
   imageText: {
-    marginTop: 16,
+    marginTop: 12,
     fontSize: 16,
-    color: "#999",
+    color: "#6b7280",
     textAlign: "center",
   },
-  welcomeText: {
-    fontSize: 20,
+  analyzeButton: {
+    backgroundColor: "#3b82f6",
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 12,
+    marginTop: 24,
+    shadowColor: "#3b82f6",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  analyzeButtonText: {
+    color: "#fff",
+    fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+  },
+  resultCard: {
+    marginTop: 28,
+    backgroundColor: "#ffffff",
+    padding: 20,
+    borderRadius: 16,
+    width: "95%",
+    maxWidth: 420,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  resultTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "#111827",
+  },
+  resultItem: {
+    marginBottom: 10,
+  },
+  resultItemText: {
+    fontSize: 16,
+    color: "#374151",
+  },
+  totalCalories: {
     marginTop: 16,
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#ef4444",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  newAnalysisButton: {
+    backgroundColor: "#10b981",
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginTop: 24,
+    alignItems: "center",
+  },
+  newAnalysisButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  instructionText: {
+    fontSize: 16,
+    color: "#6b7280",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  profileMenu: {
+    position: "absolute",
+    top: 64,
+    right: 20,
+    backgroundColor: "#ffffff",
+    borderRadius: 14,
+    padding: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
+    width: 240,
+    zIndex: 101,
+  },
+  profileMenuHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
+    paddingBottom: 12,
+    marginBottom: 14,
+  },
+  profileMenuName: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#111827",
+  },
+  profileMenuUsername: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginTop: 4,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+  },
+  menuItemTextSignOut: {
+    marginLeft: 14,
+    fontSize: 16,
+    color: "#ef4444",
+    fontWeight: "600",
   },
   menuBackdrop: {
     position: "absolute",
@@ -517,124 +676,5 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 100,
-  },
-  profileMenu: {
-    position: "absolute",
-    top: 60,
-    right: 16,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 5,
-    width: 220,
-    zIndex: 101,
-  },
-  profileMenuHeader: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    paddingBottom: 12,
-    marginBottom: 12,
-  },
-  profileMenuName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-  },
-  profileMenuUsername: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 4,
-  },
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-  },
-  menuItemTextSignOut: {
-    marginLeft: 12,
-    fontSize: 16,
-    color: "#ff3b30",
-  },
-
-  resultCard: {
-    marginTop: 24,
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    width: "90%", // Ekran genişliğine göre ayarlayın
-    maxWidth: 400, // Maksimum genişlik belirleyin
-    alignSelf: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  resultTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 12,
-    color: "#333",
-  },
-  resultItem: {
-    marginBottom: 8,
-  },
-  resultItemText: {
-    fontSize: 16,
-    color: "#444",
-  },
-  totalCalories: {
-    marginTop: 16,
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#e63946",
-  },
-  analyzeButton: {
-    backgroundColor: "#4f46e5",
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 10,
-    marginTop: 20,
-    shadowColor: "#4f46e5",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  analyzeButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  loadingOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  newAnalysisButton: {
-    backgroundColor: "#4f46e5",
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginTop: 20,
-    alignItems: "center",
-  },
-  newAnalysisButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
   },
 });

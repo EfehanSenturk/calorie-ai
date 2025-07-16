@@ -105,16 +105,15 @@ const Details = () => {
           <ActivityIndicator size="large" color="#4f46e5" />
         ) : analysis ? (
           <View style={styles.resultCard}>
-            {/* ✅ ANALİZ GÖRSELİ BURADA */}
             {analysis.imageUrl && (
               <Image
                 source={{
                   uri: analysis.imageUrl.startsWith("data:")
                     ? analysis.imageUrl
-                    : `${analysis.imageUrl}`,
+                    : `data:image/jpeg;base64,${analysis.imageUrl}`,
                 }}
                 style={styles.analysisImage}
-                resizeMode="cover"
+                resizeMode="contain"
               />
             )}
 

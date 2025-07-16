@@ -1,7 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import React from "react";
 import {
+  Alert,
   Animated,
   Pressable,
   StyleSheet,
@@ -25,6 +28,26 @@ type AnalysisItem = {
 const Sidebar = ({ visible, onClose, animation, analyses }: SidebarProps) => {
   // Safe area insets değerlerini component mount olduğunda al
   const insets = useSafeAreaInsets();
+
+  const handleDelete = async (id: string) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        Alert.alert("Error", "You must be logged in to delete this analysis.");
+        return;
+      }
+
+      await axios.delete(`http://localhost:3000/openai/analyses/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Analiz silindikten sonra sidebar'ı güncelle
+      router.replace("/");
+    } catch (error) {
+      console.error("Error deleting analysis:", error);
+      Alert.alert("Error", "Failed to delete analysis.");
+    }
+  };
 
   // Sabit paddingleri bir kez hesaplayın
   const paddingTop = insets.top;
@@ -64,25 +87,45 @@ const Sidebar = ({ visible, onClose, animation, analyses }: SidebarProps) => {
               <View style={styles.historyHeader}>
                 <Text style={styles.historyHeaderText}>Analysis History</Text>
               </View>
-
               {analyses.length > 0 ? (
                 analyses.map((analysis) => (
                   <TouchableOpacity
                     key={analysis.id}
                     style={styles.sidebarMenuItem}
                     onPress={() => {
+                      onClose(); // Tıklandığında sidebar'ı kapat
                       router.push(`/(root)/analysis/${analysis.id}`);
-                      // console.log(`Navigating to analysis ${analysis.id}`);
                     }}
                   >
-                    <Ionicons
-                      name="document-text-outline"
-                      size={24}
-                      color="#4f46e5"
-                    />
-                    <Text style={styles.sidebarMenuItemText}>
-                      {analysis.title}
-                    </Text>
+                    <View style={styles.menuItemContent}>
+                      <Ionicons
+                        name="document-text-outline"
+                        size={22}
+                        color="#4f46e5"
+                      />
+                      <Text
+                        style={styles.sidebarMenuItemText}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {analysis.title}
+                      </Text>
+                    </View>
+
+                    <TouchableOpacity
+                      onPress={(e) => {
+                        e.stopPropagation(); // Üst öğeye tıklama olayının geçmesini engelle
+                        handleDelete(analysis.id);
+                      }}
+                      style={styles.deleteButton}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <Ionicons
+                        name="trash-outline"
+                        size={20}
+                        color="#ff3b30"
+                      />
+                    </TouchableOpacity>
                   </TouchableOpacity>
                 ))
               ) : (
@@ -164,14 +207,19 @@ const styles = StyleSheet.create({
   sidebarMenuItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    justifyContent: "space-between", // Öğeleri doğru hizala
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#e1e4e8",
+    marginHorizontal: 0,
   },
 
   sidebarMenuItemText: {
-    marginLeft: 16,
-    fontSize: 16,
+    fontSize: 15,
     color: "#333",
+    marginLeft: 12,
+    flex: 1,
   },
 
   // Geçmiş Başlığı
@@ -217,6 +265,14 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     fontSize: 16,
     color: "#ff3b30",
+  },
+  menuItemContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1, // Esnek genişlik ver
+  },
+  deleteButton: {
+    padding: 8, // Kolay tıklama için daha büyük dokunma alanı
   },
 });
 
